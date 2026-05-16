@@ -103,12 +103,6 @@ project/
 └── README.md
 ```
 
----
-
-Nếu cần, có thể bổ sung thêm phần mô tả chi tiết từng thành viên để đưa vào báo cáo cá nhân hoặc slide bảo vệ.
-
----
-
 # Ngôn Ngữ & Công Nghệ Đề Xuất
 
 Dự án nên được triển khai hoàn toàn bằng JavaScript/Node.js vì đây là lựa chọn tối ưu nhất cho real-time WebSocket, WebRTC và Canvas.
