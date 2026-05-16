@@ -1,73 +1,79 @@
 # Phân Công Công Việc – Dự Án Web Game Cờ Vây (Go)
 
-Dự án được thực hiện bởi nhóm 5 thành viên. Mỗi người đảm nhận một mảng độc lập để đảm bảo tiến độ, tránh xung đột code và dễ dàng báo cáo khi bảo vệ.
+Dự án được thực hiện bởi nhóm 6 thành viên. Mỗi người đảm nhận một mảng độc lập để đảm bảo tiến độ, tránh xung đột code và dễ dàng báo cáo khi bảo vệ.
 
-## 1. FE 1 – UI/UX + Trang Auth + Lobby (Tran Phuoc Loc)
-**Phụ trách:** Thiết kế và phát triển giao diện người dùng.
+## 1. FE 1 – UI/UX + Trang Auth
+Phụ trách: Thiết kế và phát triển giao diện người dùng phần xác thực.
 
-**Nhiệm vụ chính:**
-- Xây dựng trang Đăng nhập / Đăng ký bằng HTML/CSS/JS.
-- Kết nối API đăng nhập/đăng ký qua `fetch`.
-- Thiết kế giao diện Lobby: danh sách phòng, nút tạo phòng, tham gia phòng.
-- Xây dựng khung giao diện phòng game (không xử lý logic).
-- Render chat UI, danh sách người chơi.
-- Kết nối Socket.IO client để hiển thị danh sách phòng theo thời gian thực.
+Nhiệm vụ chính:
+Xây dựng trang Đăng nhập / Đăng ký bằng HTML/CSS/JS.
+Kết nối API đăng nhập/đăng ký qua fetch.
+Thiết kế giao diện cơ bản cho người dùng.
+Hỗ trợ render giao diện danh sách người chơi.
+---
+
+## 2. FE 2 – Lobby + Room UI 
+Phụ trách: Phát triển giao diện Lobby và phòng chơi.
+
+Nhiệm vụ chính:
+Thiết kế giao diện Lobby: danh sách phòng, nút tạo phòng, tham gia phòng.
+Xây dựng khung giao diện phòng game (không xử lý logic).
+Render chat UI.
+Kết nối Socket.IO client để hiển thị danh sách phòng theo thời gian thực.
 
 ---
 
-## 2. FE 2 – Canvas Game + WebRTC Ping (Le Minh Huy)
-**Phụ trách:** Hiển thị bàn cờ và xử lý real-time ở phía giao diện.
+## 3. FE 3: Canvas Game + Ping Effect
+Phụ trách: Hiển thị bàn cờ và hiệu ứng realtime phía frontend.
 
-**Nhiệm vụ chính:**
-- Vẽ bàn cờ bằng HTML5 Canvas.
-- Vẽ quân đen / trắng, highlight vị trí, xử lý click của người chơi.
-- Render nước đi khi server gửi về.
-- Xử lý hiệu ứng Ping bằng Canvas.
-- Tạo kết nối WebRTC PeerConnection + DataChannel.
-- Gửi/nhận tín hiệu Ping qua DataChannel.
+Nhiệm vụ chính:
+Vẽ bàn cờ bằng HTML5 Canvas.
+Vẽ quân đen / trắng, highlight vị trí, xử lý click của người chơi.
+Render nước đi khi server gửi về.
+Xử lý hiệu ứng Ping bằng Canvas.
 
 ---
 
-## 3. BE 1 – API Auth + Database + Serve Static (Huynh Nguyen Tien Loc)
-**Phụ trách:** Xử lý đăng ký / đăng nhập và quản lý dữ liệu.
+## 4. FE/BE: WebRTC Ping + Socket Client
+Phụ trách: Xử lý kết nối realtime peer-to-peer.
 
-**Nhiệm vụ chính:**
-- Tạo API đăng ký, đăng nhập bằng Express.js.
-- Hash mật khẩu (bcrypt).
-- Tạo và quản lý database SQLite.
-- Serve file frontend (HTML, CSS, JS).
-- Kiểm tra input, validate thông tin người dùng.
-
----
-
-## 4. BE 2 – Socket.IO (Lobby + Room + Signaling WebRTC) (Huynh Hai Lam + Nguyen Gia Huy)
-**Phụ trách:** Toàn bộ logic thời gian thực giữa các client.
-
-**Nhiệm vụ chính:**
-- Xây dựng server Socket.IO.
-- Quản lý lobby: tạo phòng, danh sách phòng, tham gia phòng.
-- Quản lý room: phân quyền người chơi, lượt chơi.
-- Tiếp nhận và broadcast nước đi.
-- Tiếp nhận và trả lời chat text.
-- Xử lý signaling WebRTC:
-  - `offer`
-  - `answer`
-  - ICE candidates
+Nhiệm vụ chính:
+Tạo kết nối WebRTC PeerConnection + DataChannel.
+Gửi/nhận tín hiệu Ping qua DataChannel.
+Hỗ trợ kết nối Socket.IO client với frontend.
+Kiểm thử realtime communication.
 
 ---
 
-## 5. Full-stack – Logic Game + Tích Hợp + Kiểm Thử (Nguyen Gia Huy)
-**Phụ trách:** Liên kết tất cả module và đảm bảo hệ thống chạy hoàn chỉnh.
+## 5. BE 1: API Auth + Database + Static Server
+Phụ trách: Xử lý backend đăng nhập và cơ sở dữ liệu.
 
-**Nhiệm vụ chính:**
-- Viết logic kiểm tra nước đi hợp lệ, đúng lượt.
-- Xác minh move từ client (chặn cheat).
-- Kết nối tất cả thành phần FE – BE.
-- Kiểm thử toàn bộ flow:
-  - Login → Lobby → Tạo phòng → Chơi → Chat → Ping.
-- Sửa lỗi phát sinh giữa các phần.
-- Viết README hướng dẫn chạy dự án.
-- Chuẩn bị nội dung báo cáo & demo.
+Nhiệm vụ chính:
+Tạo API đăng ký, đăng nhập bằng Express.js.
+Hash mật khẩu (bcrypt).
+Tạo và quản lý database SQLite.
+Serve file frontend (HTML, CSS, JS).
+Kiểm tra input, validate thông tin người dùng.
+## 6. BE 2 + Full-stack Integration
+Phụ trách: Xử lý realtime server và tích hợp toàn bộ hệ thống.
+
+Nhiệm vụ chính:
+Xây dựng server Socket.IO.
+Quản lý lobby: tạo phòng, danh sách phòng, tham gia phòng.
+Quản lý room: phân quyền người chơi, lượt chơi.
+Tiếp nhận và broadcast nước đi.
+Tiếp nhận và trả lời chat text.
+Xử lý signaling WebRTC:
+offer
+answer
+ICE candidates
+Viết logic kiểm tra nước đi hợp lệ, đúng lượt.
+Xác minh move từ client (chặn cheat).
+Kết nối tất cả thành phần FE – BE.
+Kiểm thử toàn bộ flow:
+Login → Lobby → Tạo phòng → Chơi → Chat → Ping.
+Sửa lỗi phát sinh giữa các phần.
+
 
 ---
 
@@ -131,31 +137,7 @@ Dự án nên được triển khai hoàn toàn bằng JavaScript/Node.js vì đ
 - Xử lý nhiều kết nối thời gian thực cực nhẹ nhờ event loop.
 - FE & BE dùng chung 1 ngôn ngữ → dễ chia việc, dễ debug, dễ maintain.
 
-## Với BE 1 (Huynh Nguyen Tien Loc):
 
-- Đảm bảo endpoint API đúng: /api/auth/login, /api/auth/register
-- Token format phải khớp
-- Error response format phải nhất quán
-
-## Với BE 2 (Socket.IO - Huynh Hai Lam + Nguyen Gia Huy):
-
-Socket events cần khớp:
-
-- getRooms, roomsList
-- createRoom, roomCreated
-- joinRoom, joinedRoom
-- chatMessage
-- playersUpdate
-- roomUpdated, roomDeleted
-
-
-
-## Với FE 2 (Le Minh Huy):
-
-- Canvas element đã được chuẩn bị: #gameBoard
-- Board container: #boardContainer
-- FE 2 sẽ xử lý vẽ bàn cờ và tương tác game
-- Ping button đã có, FE 2 implement WebRTC
 
 ---
 
@@ -322,25 +304,7 @@ npm start
 6. ✅ **Territory Scoring**: Tính điểm theo lãnh thổ
 7. ✅ **Komi**: Đền bù 6.5 điểm cho Quân Trắng
 
-### Performance
-- **WebSocket latency**: < 50ms
-- **Canvas rendering**: 60 FPS
-- **Database queries**: < 10ms
-- **API response time**: < 100ms
-
----
-
-## 👥 Phân Công & Đóng Góp
-
-| STT | Họ và Tên | Vai Trò | Phần Việc Chính |
-|-----|-----------|---------|-----------------|
-| 1 | Tran Phuoc Loc | FE 1 | UI/UX + Auth + Lobby |
-| 2 | Le Minh Huy | FE 2 | Canvas + WebRTC |
-| 3 | Huynh Nguyen Tien Loc | BE 1 | API + Database |
-| 4 | Huynh Hai Lam | BE 2 | Socket.IO |
-| 5 | **Nguyen Gia Huy** | **Full-stack** | **Game Logic + Integration + Testing** |
-
-### Đóng Góp Của Nguyen Gia Huy
+|
 
 #### 1. Game Logic (gameLogic.js)
 - ✅ Thuật toán BFS tìm nhóm quân và đếm "khí"
@@ -383,8 +347,4 @@ Nếu gặp vấn đề:
 4. Liên hệ team
 
 ---
-
-**Người viết tài liệu**: Nguyen Gia Huy  
-**Vai trò**: Full-stack – Logic Game + Tích Hợp + Kiểm Thử  
-**Ngày cập nhật**: 2025
 
