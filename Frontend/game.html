@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Room - Go Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../styles/game.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <div class="room-info-header">
+                <h2 id="roomName">Phòng Game</h2>
+                <span id="roomStatus">Chờ người chơi...</span>
+            </div>
+            <button id="leaveRoomBtn" class="btn-leave">Rời Phòng</button>
+        </header>
+        
+        <div class="game-content">
+            <aside class="players-panel">
+                <div class="player-section">
+                    <h3>Người Chơi</h3>
+                    <div id="playersList" class="players-list">
+                        </div>
+                </div>
+                
+                <div class="game-info">
+                    <h3>Thông Tin Game</h3>
+                    <div id="gameInfo">
+                        <p><strong>Lượt:</strong> <span id="currentTurn">-</span></p>
+                        <p><strong>Quân đen:</strong> <span id="blackCaptures">0</span></p>
+                        <p><strong>Quân trắng:</strong> <span id="whiteCaptures">0</span></p>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="board-section">
+                <div id="boardContainer">
+                    <canvas id="gameBoard"></canvas>
+                </div>
+                <div class="game-controls">
+                    <button id="passBtn" class="btn-control btn-secondary">Bỏ Lượt</button>
+                    <button id="resignBtn" class="btn-control btn-danger">Xin Thua</button>
+                </div>
+                </main>
+            
+            <aside class="chat-panel">
+                <div class="chat-section">
+                    <h3>Chat</h3>
+                    <div id="chatMessages" class="chat-messages">
+                        </div>
+                    <form id="chatForm" class="chat-form">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="Nhập tin nhắn..."
+                            maxlength="200"
+                        >
+                        <button type="submit" class="btn-send">Gửi</button>
+                    </form>
+                </div>
+                
+                <div class="ping-section">
+                    <h3>Ping</h3>
+                    <div id="pingDisplay" class="ping-display">
+                        <span id="pingValue">-</span> ms
+                    </div>
+                    <button id="pingBtn" class="btn-ping">Ping</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="../canvas/board.js"></script>
+    <script src="../scripts/game-ui.js"></script>
+</body>
+</html>
