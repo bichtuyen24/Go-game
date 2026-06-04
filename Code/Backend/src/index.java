@@ -1,28 +1,21 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-public class index {
-    public static void main(String[] args){
-        String serverHost="127.0.0.1";
-        int serverPort=8000;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 
-        System.out.println("Dang ket noi "+ serverHost + ":" +serverPort+"...");
-        try (Socket socket = new Socket(serverHost, serverPort)) {
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("Ket noi thanh cong!");
-            String apiRequest = "Hello |Get_user_info|id=123";
-            out.println(apiRequest);
-            System.out.println("Da gui yeu cau: " + apiRequest);
+public class index{
+    public static void main(String[] args) throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-            String apiResponse = in.readLine();
-            System.out.println("--- Ket qua nhan duoc ---");
-            System.out.println(apiResponse);
-        } catch (Exception e) {
-            System.err.println("Loi ket noi: " + e.getMessage());
-            e.printStackTrace();
-        }
+        server.createContext("/", new StaticFileHandler());
+
+        server.createContext("/api/login", new LoginApiHandler());
+
+        server.setExecutor(null);
+        server.start();
+        System.out.println("Server started on port 8080");
     }
 }
