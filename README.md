@@ -45,35 +45,25 @@ Kiểm thử realtime communication.
 
 ---
 
-## 5. BE 1: API Auth + Database + Static Server
-Phụ trách: Xử lý backend đăng nhập và cơ sở dữ liệu.
+## 5. BE 1: TCP Auth Server + Database + Protocol Manager
+Phụ trách: Xử lý luồng xác thực, cơ sở dữ liệu và định nghĩa giao thức mạng.
 
 Nhiệm vụ chính:
-Tạo API đăng ký, đăng nhập bằng Express.js.
-Hash mật khẩu (bcrypt).
-Tạo và quản lý database SQLite.
-Serve file frontend (HTML, CSS, JS).
-Kiểm tra input, validate thông tin người dùng.
-## 6. BE 2 + Full-stack Integration
-Phụ trách: Xử lý realtime server và tích hợp toàn bộ hệ thống.
+Xây dựng ServerSocket riêng biệt hoặc luồng riêng để xử lý các kết nối Đăng ký / Đăng nhập từ Client.
+Kết nối và quản lý cơ sở dữ liệu SQLite qua JDBC.
+Mã hóa mật khẩu bằng thư viện BCrypt (Java) trước khi lưu vào DB.
+Định nghĩa Giao thức cấu trúc gói tin (Custom Protocol Packet) chung cho cả nhóm (Ví dụ quy định: Mã_Hành_Động|Dữ_Liệu_JSON).
+Kiểm tra tính hợp lệ của dữ liệu (Validate input) phía Server để tránh SQL Injection.
+## 6. BE 2 + TCP Game Server + Room Manager + Full-stack Integration
+Phụ trách: Xử lý logic thời gian thực trên Server, quản lý phòng và tích hợp hệ thống.
 
 Nhiệm vụ chính:
-Xây dựng server Socket.IO.
-Quản lý lobby: tạo phòng, danh sách phòng, tham gia phòng.
-Quản lý room: phân quyền người chơi, lượt chơi.
-Tiếp nhận và broadcast nước đi.
-Tiếp nhận và trả lời chat text.
-Xử lý signaling WebRTC:
-offer
-answer
-ICE candidates
-Viết logic kiểm tra nước đi hợp lệ, đúng lượt.
-Xác minh move từ client (chặn cheat).
-Kết nối tất cả thành phần FE – BE.
-Kiểm thử toàn bộ flow:
-Login → Lobby → Tạo phòng → Chơi → Chat → Ping.
-Sửa lỗi phát sinh giữa các phần.
-
+Xây dựng Server chính quản lý kết nối đa luồng (Thread Pool / ExecutorService) để giữ kết nối đồng thời với tất cả Client.
+Quản lý Logic Lobby/Room: Tạo phòng, quản lý danh sách phòng, điều hướng Client khi vào/ra phòng.
+Tiếp nhận gói tin nước đi, gói tin chat từ một Client và Broadcast (phát tán) tới Client đối thủ trong cùng phòng.
+Viết logic trọng tài (Go Rules Engine) trên Server: Thuật toán BFS tìm nhóm quân, tính "khí", bắt quân, kiểm tra nước đi hợp lệ (luật cướp Ko, luật Tự sát), tính điểm lãnh thổ tự động.
+Anti-Cheat: Server toàn quyền kiểm tra lượt đi, không cho phép Client gửi nước đi sai luật hoặc sai lượt.
+Tích hợp toàn bộ hệ thống và kiểm thử luồng chạy (Luồng Auth -> Luồng Lobby -> Luồng Game).
 
 ---
 
@@ -89,10 +79,10 @@ Sửa lỗi phát sinh giữa các phần.
 ```
 project/
 │── backend/
-│   ├── api/
-│   ├── socket/
+│   ├── auth/
 │   ├── database/
-│   └── server.js
+│   ├── core/
+│   └── logic/
 │
 │── frontend/
 │   ├── pages/
@@ -105,7 +95,7 @@ project/
 
 # Ngôn Ngữ & Công Nghệ Đề Xuất
 
-Dự án nên được triển khai hoàn toàn bằng JavaScript/Node.js vì đây là lựa chọn tối ưu nhất cho real-time WebSocket, WebRTC và Canvas.
+Dự án nên được triển khai hoàn toàn bằng Java vì đây là lựa chọn tối ưu nhất cho việc xây dựng kiến trúc Server đa luồng (Multi-threading) xử lý kết nối TCP đồng thời và triển khai bộ engine trọng tài (Go Rules Engine) chạy thuật toán BFS.
 
 ## Frontend
 - **HTML5 + CSS3 + JavaScript**
@@ -117,20 +107,20 @@ Dự án nên được triển khai hoàn toàn bằng JavaScript/Node.js vì đ
   - **React** (không bắt buộc) nếu muốn UI reusable và chuyên nghiệp.
 
 ## Backend
-- **Node.js**
-- **Express.js** để cung cấp API và serve file tĩnh.
-- **Socket.IO** để xử lý lobby, room và nước đi real-time.
-- **SQLite** làm database nhẹ và phù hợp đồ án.
-- **bcrypt** để hash mật khẩu.
-- **WebRTC signaling** được implement trực tiếp qua Socket.IO.
+- Java SE (Java 11 trở lên): Ngôn ngữ cốt lõi để xây dựng hệ thống Server.
+- java.net.ServerSocket: Để mở cổng, lắng nghe và thiết lập kết nối TCP thuần với các Client.
+- Thread Pool (ExecutorService): Quản lý, phân phối luồng (Multi-threading) để xử lý đồng thời hàng trăm kết nối TCP từ Client một cách tối ưu, tránh nghẽn mạng.
+- SQLite + JDBC Driver: Hệ quản trị cơ sở dữ liệu nhẹ, không cần cài đặt phức tạp, tương tác qua JDBC của Java.
+- jBCrypt: Thư viện Java chuyên dụng để mã hóa và kiểm tra mật khẩu an toàn.
+- Gson / Jackson: Thư viện chuyển đổi dữ liệu (Object <-> JSON) để đóng gói và truyền tải qua luồng byte của TCP Socket.
 
-## Vì sao chọn JavaScript + Node.js?
+## Vì sao chọn JavaScript + Node.js + Java?
 - FE bắt buộc dùng JS (Canvas + WebRTC API).
 - Node.js đồng bộ ngon với WebSocket/WebRTC.
 - Socket.IO mạnh nhất trên Node.js.
 - Xử lý nhiều kết nối thời gian thực cực nhẹ nhờ event loop.
 - FE & BE dùng chung 1 ngôn ngữ → dễ chia việc, dễ debug, dễ maintain.
-
+- Java xử lý đa luồng (Multi-threading) mạnh mẽ, hiệu năng cao và độc lập nền tảng.
 
 
 ---
@@ -162,11 +152,11 @@ npm install
 ### Các package được cài đặt:
 - **express**: Web framework cho Node.js
 - **socket.io**: Thư viện WebSocket cho real-time communication
-- **sqlite3**: Database nhẹ
-- **bcrypt**: Hash mật khẩu
 - **jsonwebtoken**: Xác thực người dùng
 - **cors**: Xử lý CORS
 - **nodemon**: Auto-restart server khi dev (devDependencies)
+- **jbcrypt**: Hash mật khẩu
+- **sqlite-jdbc**: Driver kết nối cơ sở dữ liệu SQLite với ứng dụng Java thông qua kết nối JDBC.
 
 ## Bước 3: Khởi Động Server
 
