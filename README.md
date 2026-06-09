@@ -98,13 +98,14 @@ project/
 Dự án nên được triển khai hoàn toàn bằng Java vì đây là lựa chọn tối ưu nhất cho việc xây dựng kiến trúc Server đa luồng (Multi-threading) xử lý kết nối TCP đồng thời và triển khai bộ engine trọng tài (Go Rules Engine) chạy thuật toán BFS.
 
 ## Frontend
-- **HTML5 + CSS3 + JavaScript**
-- **Canvas API** để vẽ bàn cờ và hiển thị quân cờ.
-- **WebRTC API** để tạo DataChannel cho chức năng Ping.
-- **socket.io-client** để giao tiếp real-time với server.
-- Có thể nâng cấp thêm:
-  - **TypeScript** để hạn chế lỗi và code typed hơn.
-  - **React** (không bắt buộc) nếu muốn UI reusable và chuyên nghiệp.
+- Hiển thị giao diện Đăng nhập và Đăng ký tài khoản.
+- Hiển thị Lobby bao gồm danh sách phòng chơi và chức năng tạo/tham gia phòng.
+- Hiển thị bàn cờ vây 19x19 bằng JavaFX Canvas.
+- Hiển thị quân cờ, lượt chơi hiện tại và trạng thái trận đấu.
+- Đồng bộ trạng thái bàn cờ theo thời gian thực từ Server.
+- Hỗ trợ Chat trực tiếp giữa hai người chơi.
+- Hỗ trợ Ping vị trí trên bàn cờ theo thời gian thực.
+- Hiển thị kết quả trận đấu và điểm số cuối ván.
 
 ## Backend
 - Java SE (Java 11 trở lên): Ngôn ngữ cốt lõi để xây dựng hệ thống Server.
