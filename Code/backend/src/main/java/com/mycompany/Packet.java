@@ -1,54 +1,28 @@
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.gôogle.gson.JsonParser;
+package com.mycompany;
 
-public class Packet {
+import java.io.Serializable;
 
-    private static final Gson GSON = new Gson();
+public class Packet implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    public static final char SPARATOR = '|';
-    private final JsonObject payload;
-    private final String action;
+    private String type;     
+    private String sender;   
+    private String roomId;   
+    private String data;     
 
-    private Packet(String action, JsonObject payload){
-        this.action = action;
-        this.payload = payload;
+    public Packet(String type, String sender, String roomId, String data) {
+        this.type = type;
+        this.sender = sender;
+        this.roomId = roomId;
+        this.data = data;
     }
 
-    public static Packet of(String action, JsonObject payload) {
-        return new Packet(action, payload != null ? payload : new JsonObject());
-    }
-
-
-    public static Packet login(String username, String password){
-        JsonObject d = new JsonObject();
-        d.addProperty("username", username);
-        d.addProperty("password", password);
-        return of("LOGIN", d);
-    }
-
-    public static Packet register(String username, String email, String password){
-        JsonObjec d = new JsonObject();
-        d.addProperty("username", username);
-        d.addProperty("email", email);
-        d.addProperty("password", password);
-        return of(REGISTER, d);
-    }
-
-    public static Packet ping() {return of(PING);}
-    public static Packet loginG(int userId, String username) {
-        JsonObject d = new JsonObject();
-        d.addProperty("userId", userId);
-        d.addProperty("username", username);
-        d.addProperty("message", "Dang nhap thanh cong!");
-        return of(LOGIN_OK, d);
-    }
-
-    public static Packet fail (String responseCode, String message){
-        JsonObject d = new JsonObject();
-        d.addProperty("message", message);
-        return of(responseCode, d);
-    }
-
-    
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    public String getSender() { return sender; }
+    public void setSender(String sender) { this.sender = sender; }
+    public String getRoomId() { return roomId; }
+    public void setRoomId(String roomId) { this.roomId = roomId; }
+    public String getData() { return data; }
+    public void setData(String data) { this.data = data; }
 }

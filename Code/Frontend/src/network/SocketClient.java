@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import board.BoardCanvas;
 import javafx.application.Platform;
+import com.mycompany.Packet;
+import com.google.gson.JsonObject;
 
 public class SocketClient {
 
@@ -70,6 +72,27 @@ public class SocketClient {
                 int col = Integer.parseInt(tokens[1]);
                 canvas.triggerPingAt(row, col); 
             }
+            else if (message.contains("|")) { 
+                // Giải mã chuỗi dạng "ACTION|{JSON}" nhận từ server thành đối tượng Packet
+                com.mycompany.Packet packet = com.mycompany.Packet.fromString(message);
+                if (packet != null) {
+                    String action = packet.getAction();
+                    com.google.gson.JsonObject payload = packet.getPayload();
+
+                    if ("MOVE".equals(action)) {
+                        int row = payload.get("row").getAsInt();
+                        int col = payload.get("col").getAsInt();
+                        // Lấy màu từ server truyền về hoặc mặc định là WHITE nếu thiếu
+                        String colorStr = payload.has("color") ? payload.get("color").getAsString() : "WHITE";
+                        canvas.handleServerMove(row, col, colorStr); 
+                    } 
+                    else if ("PING".equals(action)) {
+                        int row = payload.get("row").getAsInt();
+                        int col = payload.get("col").getAsInt();
+                        canvas.triggerPingAt(row, col); 
+                    }
+                }
+            }
         } catch (Exception e) {
             System.err.println("[Lỗi] Gói tin từ Server không hợp lệ: " + message);
         }
@@ -84,6 +107,29 @@ public class SocketClient {
     public void sendPing(int row, int col) {
         if (isConnected && out != null) {
             out.println("PING:" + row + "," + col);
+        }
+    }
+    public void sendPacketMove(int row, int col, String roomId) {
+        if (isConnected && out != null) {
+            com.google.gson.JsonObject data = new com.google.gson.JsonObject();
+            data.addProperty("row", row);
+            data.addProperty("col", col);
+            data.addProperty("roomId", roomId);
+            
+            // Sử dụng hàm Packet.of gốc của nhóm bạn
+            com.mycompany.Packet p = com.mycompany.Packet.of("MOVE", data);
+            out.println(p.toString()); // Gửi chuỗi "MOVE|{...}" lên Server của bạn
+        }
+    }
+
+    public void sendPacketPing(int row, int col) {
+        if (isConnected && out != null) {
+            com.google.gson.JsonObject data = new com.google.gson.JsonObject();
+            data.addProperty("row", row);
+            data.addProperty("col", col);
+            
+            com.mycompany.Packet p = com.mycompany.Packet.of("PING", data);
+            out.println(p.toString());
         }
     }
 }
