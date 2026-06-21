@@ -1,7 +1,7 @@
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 
-public class Auth {
+public class AuthHandler {
 
     private final Database db = DatabaseManager.getInstance();
     private static final int BCRYPT_ROUNDS = 16;

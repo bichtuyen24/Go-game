@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Database {
+public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:users.db";
     private static DatabaseManager instance;
     private Connection connection;
