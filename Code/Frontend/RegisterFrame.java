@@ -122,7 +122,7 @@ public class RegisterFrame extends JFrame {
         loginLinkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         authBox.add(titleLabel);
-        authBox.add(Box.createVerticalStrStrut(30)); 
+        authBox.add(Box.createVerticalStrut(30)); 
         authBox.add(usernameLabel);
         authBox.add(Box.createVerticalStrut(8));
         authBox.add(usernameInput);
