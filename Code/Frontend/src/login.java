@@ -1,10 +1,11 @@
+package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 // Lớp chính LoginFrame
-public class LoginFrame extends JFrame {
+public class login extends JFrame {
 
 // --- KHAI BÁO CÁC THÀNH PHẦN GIAO DIỆN ---
 private JTextField usernameInput;
@@ -12,7 +13,7 @@ private JPasswordField passwordInput;
 private JButton loginBtn;
 private JLabel errorMessageLabel;
 
-public LoginFrame() {
+public login() {
 // 1. CẤU HÌNH CỬA SỔ CHÍNH
 setTitle("Đăng Nhập - Go Game");
 setSize(400, 350);
@@ -112,7 +113,7 @@ errLabel.setText("Vui lòng điền đầy đủ thông tin!");
 } else {
 if (username.equals("admin") && password.equals("123456")) {
 errLabel.setText("");
-JOptionPane.showMessageDialog(LoginFrame.this, "Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+JOptionPane.showMessageDialog(login.this, "Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 } else {
 errLabel.setText("Tên đăng nhập hoặc mật khẩu không đúng.");
 }
@@ -126,7 +127,7 @@ public static void main(String[] args) {
 SwingUtilities.invokeLater(new Runnable() {
 @Override
 public void run() {
-new LoginFrame().setVisible(true);
+new login().setVisible(true);
 }
 });
 }

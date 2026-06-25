@@ -1,4 +1,4 @@
-package board;
+package src.board;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;

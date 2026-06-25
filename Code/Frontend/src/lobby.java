@@ -1,10 +1,11 @@
+package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 // Lớp chính LobbyRoom tạo sảnh chờ game
-public class LobbyRoom extends JFrame {
+public class lobby extends JFrame {
 
 // --- KHAI BÁO CÁC THÀNH PHẦN GIAO DIỆN ---
 private JLabel currentUserLabel;
@@ -14,7 +15,7 @@ private JButton refreshBtn;
 private JPanel roomsListPanel;
 private JLabel emptyMessageLabel;
 
-public LobbyRoom() {
+public lobby() {
 // 1. CẤU HÌNH CỬA SỔ CHÍNH
 setTitle("Lobby - Go Game");
 setSize(850, 600);
@@ -101,10 +102,10 @@ setupActions();
 // 4. XỬ LÝ SỰ KIỆN NÚT BẤM
 private void setupActions() {
 // Sự kiện bấm nút "+ Tạo Phòng Mới"
-createRoomBtn.addActionListener(new ActionListener() {
-@Override
-public void actionPerformed(ActionEvent e) {
-showCreateRoomModal();
+    createRoomBtn.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+    showCreateRoomModal();
 }
 });
 
@@ -112,13 +113,56 @@ showCreateRoomModal();
 logoutBtn.addActionListener(new ActionListener() {
 @Override
 public void actionPerformed(ActionEvent e) {
-JOptionPane.showMessageDialog(LobbyRoom.this, "Đang đăng xuất khỏi hệ thống...", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+JOptionPane.showMessageDialog(lobby.this, "Đang đăng xuất khỏi hệ thống...", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 }
 });
 
 // Sự kiện bấm Làm Mới danh sách phòng
 refreshBtn.addActionListener(new ActionListener() {
-@Override
-public void actionPerformed(ActionEvent e) {
-roomsListPanel.removeAll();
-addRoomItem("Phòng Kiện Tướng Go", "1
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Ví dụ làm mới: xóa và thêm một phòng mẫu
+        roomsListPanel.removeAll();
+        addRoomItem("Phòng Kiện Tướng Go", "1");
+        roomsListPanel.revalidate();
+        roomsListPanel.repaint();
+    }
+});
+    }
+
+    // Hiển thị modal tạo phòng (cài đặt đơn giản)
+    private void showCreateRoomModal() {
+        String roomName = JOptionPane.showInputDialog(this, "Nhập tên phòng:", "Tạo Phòng Mới", JOptionPane.PLAIN_MESSAGE);
+        if (roomName != null && !roomName.trim().isEmpty()) {
+            addRoomItem(roomName.trim(), "0/2");
+            roomsListPanel.revalidate();
+            roomsListPanel.repaint();
+        }
+    }
+
+    // Kiểm tra nếu danh sách phòng rỗng
+    private void checkRoomsEmpty() {
+        if (roomsListPanel.getComponentCount() == 0) {
+            roomsListPanel.setLayout(new BorderLayout());
+            roomsListPanel.removeAll();
+            roomsListPanel.add(emptyMessageLabel, BorderLayout.CENTER);
+        }
+    }
+
+    // Thêm một mục phòng đơn giản
+    private void addRoomItem(String name, String players) {
+        // Nếu trước đó đang hiển thị thông báo rỗng, đổi lại layout
+        if (roomsListPanel.getLayout() instanceof BorderLayout) {
+            roomsListPanel.setLayout(new GridLayout(0, 2, 15, 15));
+            roomsListPanel.removeAll();
+        }
+        JPanel item = new JPanel(new BorderLayout());
+        item.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        JLabel lbl = new JLabel(name + " (" + players + ")");
+        lbl.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        item.add(lbl, BorderLayout.CENTER);
+        JButton joinBtn = new JButton("Tham Gia");
+        item.add(joinBtn, BorderLayout.SOUTH);
+        roomsListPanel.add(item);
+    }
+}

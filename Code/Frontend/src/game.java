@@ -1,9 +1,10 @@
+package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GameRoom extends JFrame {
+public class game extends JFrame {
 private JLabel roomNameLabel, roomStatusLabel;
 private JButton leaveRoomBtn, passBtn, resignBtn, sendChatBtn, pingBtn;
 private JTextArea playersListArea, chatMessagesArea;
@@ -11,7 +12,7 @@ private JTextField chatInput;
 private JLabel currentTurnLabel, blackCapturesLabel, whiteCapturesLabel, pingValueLabel;
 private GoBoardCanvas gameBoard;
 
-public GameRoom() {
+public game() {
 setTitle("Game Room - Go Game");
 setSize(1100, 700);
 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -140,7 +141,7 @@ pingValueLabel.setText(fakePing + " ms");
 }
 
 public static void main(String[] args) {
-SwingUtilities.invokeLater(() -> new GameRoom().setVisible(true));
+SwingUtilities.invokeLater(() -> new game().setVisible(true));
 }
 
 static class GoBoardCanvas extends JPanel {
