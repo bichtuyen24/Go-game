@@ -1,22 +1,14 @@
 package src.ui;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
+import javax.swing.SwingUtilities;
 
-public class Main extends Application {
-
-    @Override
-    public void start(Stage stage) {
-       
-        GameScene scene = new GameScene("T");
-
-        stage.setScene(scene.createScene());
-        stage.setTitle("Go Game");
-        stage.setResizable(false); 
-        stage.show();
-    }
-
+public class Main {
     public static void main(String[] args) {
-        launch(args);
+  
+        SwingUtilities.invokeLater(() -> {
+           
+            LoginFrame loginWindow = new LoginFrame();
+            loginWindow.setVisible(true);
+        });
     }
 }

@@ -39,7 +39,7 @@ Nhiệm vụ chính:
 Khởi tạo và quản lý java.net.Socket kết nối liên tục tới Server.
 Định nghĩa các class Đọc/Ghi luồng byte (DataInputStream, DataOutputStream).
 Đóng gói/Mở gói tin (Parse JSON sang Java Object bằng Gson/Jackson và ngược lại).
-Đóng gói và gửi tín hiệu Ping/Chat qua luồng TCP chung (thay vì WebRTC như trước).
+Đóng gói và gửi tín hiệu Ping/Chat qua luồng TCP chung.
 Phân luồng sự kiện mạng (Listener Thread) để gọi ngược lại (Callback) cập nhật UI trên luồng JavaFX Application Thread (Platform.runLater).
 
 ---
