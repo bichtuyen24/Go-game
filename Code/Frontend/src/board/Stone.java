@@ -1,12 +1,13 @@
 package src.board;
 
-import javafx.scene.paint.Color;
+import java.awt.Color;
+
 
 public class Stone {
     private final int row;
     private final int col;
-    private final Color color; 
-    private double opacity = 0.0; 
+    private final Color color;
+    private double opacity = 0.0;
 
     public Stone(int row, int col, Color color) {
         this.row = row;
