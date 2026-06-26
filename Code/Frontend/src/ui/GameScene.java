@@ -1,122 +1,176 @@
 package ui;
 
-import board.BoardCanvas;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import network.SocketClient;
+import org.example.board.BoardCanvas;
+import org.example.network.SocketClient;
+import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-public class GameScene {
-
-    
+public class GameScene   {
     private final String currentUsername;
 
-   
     public GameScene(String username) {
         this.currentUsername = username;
     }
 
-    public Scene createScene() {
-       
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #2F3136;"); 
+    public JPanel createMainPanel() {
 
-       
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(Color.decode("#2F3136"));
+
+
         BoardCanvas canvas = new BoardCanvas();
-        
-       
+
+
         SocketClient client = new SocketClient();
         canvas.setSocketClient(client);
         client.connectAsync(canvas);
 
-        StackPane canvasContainer = new StackPane(canvas);
-        canvasContainer.setPadding(new Insets(20));
-        canvasContainer.setAlignment(Pos.CENTER);
-        root.setCenter(canvasContainer);
+        JPanel canvasContainer = new JPanel(new GridBagLayout());
+        canvasContainer.setBackground(Color.decode("#2F3136"));
+        canvasContainer.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        canvasContainer.add(canvas);
 
-        
-        VBox rightSidebar = new VBox(15);
-        rightSidebar.setPrefWidth(300);
-        rightSidebar.setMinWidth(300);
-        rightSidebar.setMaxWidth(300);
-        rightSidebar.setPadding(new Insets(20, 20, 20, 0));
+        root.add(canvasContainer, BorderLayout.CENTER);
 
-        
-        VBox playerInfoBox = new VBox(10);
-        playerInfoBox.setPadding(new Insets(12));
-        playerInfoBox.setStyle("-fx-background-color: #202225; -fx-background-radius: 8;");
 
-        Label titleLabel = new Label("PHÒNG CHƠI #01");
-        titleLabel.setTextFill(Color.WHITE);
-        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 15));
 
-        
-        Label p1Label = new Label("⚫ Người chơi 1: " + currentUsername);
-        p1Label.setTextFill(Color.LIGHTGRAY);
-        Label p2Label = new Label("⚪ Người chơi 2: Đang đợi đối thủ...");
-        p2Label.setTextFill(Color.LIGHTGRAY);
+        JPanel rightSidebar = new JPanel(new BorderLayout(0, 15));
+        rightSidebar.setBackground(Color.decode("#2F3136"));
+        rightSidebar.setPreferredSize(new Dimension(300, 640));
+        rightSidebar.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
 
-        playerInfoBox.getChildren().addAll(titleLabel, new Separator(), p1Label, p2Label);
 
-        
-        VBox chatBox = new VBox(8);
-        chatBox.setStyle("-fx-background-color: #202225; -fx-background-radius: 8;");
-        chatBox.setPadding(new Insets(12));
-        VBox.setVgrow(chatBox, Priority.ALWAYS);
+        JPanel playerInfoBox = new JPanel();
+        playerInfoBox.setLayout(new BoxLayout(playerInfoBox, BoxLayout.Y_AXIS));
+        playerInfoBox.setBackground(Color.decode("#202225"));
+        playerInfoBox.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        Label chatTitle = new Label("Trò Chuyện Realtime");
-        chatTitle.setTextFill(Color.WHITE);
-        chatTitle.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        JLabel titleLabel = new JLabel("PHÒNG CHƠI #01");
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 15));
 
-        TextArea chatArea = new TextArea();
+        JSeparator separator = new JSeparator();
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1)); // Đường kẻ ngang
+
+        JLabel p1Label = new JLabel("⚫ Người chơi 1: " + currentUsername);
+        p1Label.setForeground(Color.lightGray);
+
+        JLabel p2Label = new JLabel("⚪ Người chơi 2: Đang đợi đối thủ...");
+        p2Label.setForeground(Color.lightGray);
+
+        playerInfoBox.add(titleLabel);
+        playerInfoBox.add(Box.createRigidArea(new Dimension(0, 5))); // Khoảng cách
+        playerInfoBox.add(separator);
+        playerInfoBox.add(Box.createRigidArea(new Dimension(0, 5)));
+        playerInfoBox.add(p1Label);
+        playerInfoBox.add(Box.createRigidArea(new Dimension(0, 5)));
+        playerInfoBox.add(p2Label);
+
+
+        JPanel chatBox = new JPanel(new BorderLayout(0, 8));
+        chatBox.setBackground(Color.decode("#202225"));
+        chatBox.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JLabel chatTitle = new JLabel("Trò Chuyện Realtime");
+        chatTitle.setForeground(Color.WHITE);
+        chatTitle.setFont(new Font("Arial", Font.BOLD, 13));
+        chatBox.add(chatTitle, BorderLayout.NORTH);
+
+        JTextArea chatArea = new JTextArea();
         chatArea.setEditable(false);
-        chatArea.setWrapText(true);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
         chatArea.setText("[Hệ thống]: Chào mừng bạn vào phòng chơi cờ vây!\n");
-        chatArea.setStyle("-fx-control-inner-background: #36393F; -fx-text-fill: white;");
-        VBox.setVgrow(chatArea, Priority.ALWAYS);
+        chatArea.setBackground(Color.decode("#36393F"));
+        chatArea.setForeground(Color.WHITE);
 
-        HBox chatInputRow = new HBox(8);
-        TextField chatInputField = new TextField();
-        chatInputField.setPromptText("Nhập tin nhắn...");
-        chatInputField.setStyle("-fx-background-color: #40444B; -fx-text-fill: white;");
-        HBox.setHgrow(chatInputField, Priority.ALWAYS);
-        
-        Button sendButton = new Button("Gửi");
-        sendButton.setStyle("-fx-background-color: #7289DA; -fx-text-fill: white; -fx-font-weight: bold;");
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder()); // Tắt viền xấu
+        chatBox.add(scrollPane, BorderLayout.CENTER);
 
-        sendButton.setOnAction(e -> {
-            if (!chatInputField.getText().trim().isEmpty()) {
-                chatArea.appendText("[" + currentUsername + "]: " + chatInputField.getText() + "\n");
-                chatInputField.clear();
+        JPanel chatInputRow = new JPanel(new BorderLayout(8, 0));
+        chatInputRow.setBackground(Color.decode("#202225"));
+
+        JTextField chatInputField = new JTextField();
+        chatInputField.setBackground(Color.decode("#40444B"));
+        chatInputField.setForeground(Color.WHITE);
+        chatInputField.setCaretColor(Color.WHITE); // Đổi màu con trỏ chuột
+        chatInputField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JButton sendButton = new JButton("Gửi");
+        sendButton.setBackground(Color.decode("#7289DA"));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFont(new Font("Arial", Font.BOLD, 12));
+        sendButton.setFocusPainted(false);
+
+        sendButton.addActionListener(e -> {
+            String text = chatInputField.getText();
+            if (!text.trim().isEmpty()) {
+                chatArea.append("[" + currentUsername + "]: " + text + "\n");
+                chatInputField.setText(""); // Xóa trắng ô nhập
             }
         });
 
-        chatInputRow.getChildren().addAll(chatInputField, sendButton);
-        chatBox.getChildren().addAll(chatTitle, chatArea, chatInputRow);
+        chatInputField.addActionListener(e -> sendButton.doClick());
 
-        
-        HBox actionButtons = new HBox(15);
-        actionButtons.setAlignment(Pos.CENTER);
+        chatInputRow.add(chatInputField, BorderLayout.CENTER);
+        chatInputRow.add(sendButton, BorderLayout.EAST);
 
-        Button readyBtn = new Button("Sẵn Sàng");
-        readyBtn.setStyle("-fx-background-color: #43B581; -fx-text-fill: white; -fx-font-weight: bold;");
-        readyBtn.setPrefWidth(120);
+        chatBox.add(chatInputRow, BorderLayout.SOUTH);
 
-        Button resignBtn = new Button("Đầu Hàng");
-        resignBtn.setStyle("-fx-background-color: #F04747; -fx-text-fill: white; -fx-font-weight: bold;");
-        resignBtn.setPrefWidth(120);
 
-        actionButtons.getChildren().addAll(readyBtn, resignBtn);
+        JPanel actionButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        actionButtons.setBackground(Color.decode("#2F3136"));
 
-        
-        rightSidebar.getChildren().addAll(playerInfoBox, chatBox, actionButtons);
-        root.setRight(rightSidebar);
+        JButton readyBtn = new JButton("Sẵn Sàng");
+        readyBtn.setBackground(Color.decode("#43B581"));
+        readyBtn.setForeground(Color.WHITE);
+        readyBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        readyBtn.setPreferredSize(new Dimension(120, 35));
+        readyBtn.setFocusPainted(false);
 
-        return new Scene(root, 960, 640);
+        JButton resignBtn = new JButton("Đầu Hàng");
+        resignBtn.setBackground(Color.decode("#F04747"));
+        resignBtn.setForeground(Color.WHITE);
+        resignBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        resignBtn.setPreferredSize(new Dimension(120, 35));
+        resignBtn.setFocusPainted(false);
+
+        actionButtons.add(readyBtn);
+        actionButtons.add(resignBtn);
+
+
+        rightSidebar.add(playerInfoBox, BorderLayout.NORTH);
+        rightSidebar.add(chatBox, BorderLayout.CENTER);
+        rightSidebar.add(actionButtons, BorderLayout.SOUTH);
+
+        root.add(rightSidebar, BorderLayout.EAST);
+        return root;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // 1. Tạo cửa sổ JFrame
+            JFrame frame = new JFrame("Game Vây Kỳ");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(960, 640);
+
+            // 2. Tạo GameScene và lấy Panel giao diện ráp vào cửa sổ
+            GameScene scene = new GameScene("Player_01");
+            frame.add(scene.createMainPanel());
+
+            // 3. Hiển thị ra giữa màn hình
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
     }
 }
