@@ -1,67 +1,95 @@
+package ui;
+
+import com.mycompany.DatabaseManager;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 
 public class RegisterFrame extends JFrame {
 
-    private JTextField usernameInput;             
-    private JTextField emailInput;                
-    private JPasswordField passwordInput;         
-    private JPasswordField confirmPasswordInput;  
-    private JButton registerBtn;                  
-    private JLabel errorMessageLabel;             
+    private JTextField usernameInput;
+    private JTextField emailInput;
+    private JPasswordField passwordInput;
+    private JPasswordField confirmPasswordInput;
+    private JButton registerBtn;
+    private JLabel errorMessageLabel;
+
+    private LoginFrame loginFrameParent;
 
     public RegisterFrame() {
-        Color primaryColor = new Color(10, 25, 47);        
-        Color textPrimary = new Color(204, 214, 246);      
-        Color textSecondary = new Color(136, 146, 176);    
-        Color accentColor = new Color(100, 255, 218);      
-        final Color glassColor = new Color(17, 34, 64, 180);     
-        Color errorBgColor = new Color(255, 107, 107, 25); 
+        this(null);
+    }
+
+    public RegisterFrame(LoginFrame parent) {
+        this.loginFrameParent = parent;
+
+        Color primaryColor = new Color(10, 25, 47);
+        Color textPrimary = new Color(204, 214, 246);
+        Color accentColor = new Color(100, 255, 218);
+        final Color glassColor = new Color(17, 34, 64, 180);
+        Color errorBgColor = new Color(255, 107, 107, 25);
 
         setTitle("Đăng Ký - Go Game");
-        setSize(450, 560);                         
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);               
-        setLayout(new GridBagLayout());            
-        getContentPane().setBackground(primaryColor); 
+        setSize(450, 650);
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridBagLayout());
+        getContentPane().setBackground(primaryColor);
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (loginFrameParent != null) {
+                    loginFrameParent.setVisible(true);
+                }
+            }
+        });
 
         JPanel authBox = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
+                g.setColor(new Color(10, 25, 47));
+                g.fillRect(0, 0, getWidth(), getHeight());
+
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.setColor(glassColor);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
                 g2d.dispose();
+
                 super.paintComponent(g);
             }
         };
         authBox.setOpaque(false);
-        authBox.setLayout(new BoxLayout(authBox, BoxLayout.Y_AXIS)); 
-        
+        authBox.setLayout(new BoxLayout(authBox, BoxLayout.Y_AXIS));
+
         authBox.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(100, 255, 218, 25), 1),
-            BorderFactory.createEmptyBorder(40, 40, 40, 40)
+                BorderFactory.createLineBorder(new Color(100, 255, 218, 25), 1),
+                BorderFactory.createEmptyBorder(40, 40, 40, 40)
         ));
 
         JLabel titleLabel = new JLabel("Đăng Ký");
-        titleLabel.setFont(new Font("Inter", Font.BOLD, 32)); 
+        titleLabel.setFont(new Font("Inter", Font.BOLD, 32));
         titleLabel.setForeground(textPrimary);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel usernameLabel = new JLabel("Tên đăng nhập:");
-        usernameLabel.setFont(new Font("Inter", Font.PLAIN, 14)); 
+        usernameLabel.setFont(new Font("Inter", Font.PLAIN, 14));
         usernameLabel.setForeground(textPrimary);
         usernameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         usernameInput = new JTextField();
-        usernameInput.setMaximumSize(new Dimension(370, 45)); 
-        usernameInput.setBackground(new Color(17, 34, 64, 127)); 
+        usernameInput.setMaximumSize(new Dimension(370, 45));
+        usernameInput.setBackground(new Color(10, 25, 47)); // Đổi sang nền tối đặc để chữ hiển thị mượt mà không nhòe
         usernameInput.setForeground(textPrimary);
-        usernameInput.setCaretColor(accentColor); 
-        usernameInput.setBorder(BorderFactory.createLineBorder(new Color(100, 255, 218, 51), 2)); 
+        usernameInput.setCaretColor(accentColor);
+        usernameInput.setFont(new Font("Inter", Font.PLAIN, 14));
+        usernameInput.setBorder(BorderFactory.createLineBorder(new Color(100, 255, 218, 51), 2));
 
         JLabel emailLabel = new JLabel("Email:");
         emailLabel.setFont(new Font("Inter", Font.PLAIN, 14));
@@ -70,9 +98,10 @@ public class RegisterFrame extends JFrame {
 
         emailInput = new JTextField();
         emailInput.setMaximumSize(new Dimension(370, 45));
-        emailInput.setBackground(new Color(17, 34, 64, 127));
+        emailInput.setBackground(new Color(10, 25, 47));
         emailInput.setForeground(textPrimary);
         emailInput.setCaretColor(accentColor);
+        emailInput.setFont(new Font("Inter", Font.PLAIN, 14));
         emailInput.setBorder(BorderFactory.createLineBorder(new Color(100, 255, 218, 51), 2));
 
         JLabel passwordLabel = new JLabel("Mật khẩu:");
@@ -82,9 +111,10 @@ public class RegisterFrame extends JFrame {
 
         passwordInput = new JPasswordField();
         passwordInput.setMaximumSize(new Dimension(370, 45));
-        passwordInput.setBackground(new Color(17, 34, 64, 127));
+        passwordInput.setBackground(new Color(10, 25, 47));
         passwordInput.setForeground(textPrimary);
         passwordInput.setCaretColor(accentColor);
+        passwordInput.setFont(new Font("Inter", Font.PLAIN, 14));
         passwordInput.setBorder(BorderFactory.createLineBorder(new Color(100, 255, 218, 51), 2));
 
         JLabel confirmPasswordLabel = new JLabel("Xác nhận mật khẩu:");
@@ -94,15 +124,16 @@ public class RegisterFrame extends JFrame {
 
         confirmPasswordInput = new JPasswordField();
         confirmPasswordInput.setMaximumSize(new Dimension(370, 45));
-        confirmPasswordInput.setBackground(new Color(17, 34, 64, 127));
+        confirmPasswordInput.setBackground(new Color(10, 25, 47));
         confirmPasswordInput.setForeground(textPrimary);
         confirmPasswordInput.setCaretColor(accentColor);
+        confirmPasswordInput.setFont(new Font("Inter", Font.PLAIN, 14));
         confirmPasswordInput.setBorder(BorderFactory.createLineBorder(new Color(100, 255, 218, 51), 2));
 
         registerBtn = new JButton("ĐĂNG KÝ");
-        registerBtn.setBackground(accentColor); 
-        registerBtn.setForeground(primaryColor); 
-        registerBtn.setFont(new Font("Inter", Font.BOLD, 16)); 
+        registerBtn.setBackground(accentColor);
+        registerBtn.setForeground(primaryColor);
+        registerBtn.setFont(new Font("Inter", Font.BOLD, 16));
         registerBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerBtn.setMaximumSize(new Dimension(370, 50));
         registerBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -111,32 +142,32 @@ public class RegisterFrame extends JFrame {
 
         errorMessageLabel = new JLabel("");
         errorMessageLabel.setFont(new Font("Inter", Font.PLAIN, 14));
-        errorMessageLabel.setForeground(new Color(255, 107, 107)); 
+        errorMessageLabel.setForeground(new Color(255, 107, 107));
         errorMessageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        errorMessageLabel.setOpaque(false); 
-        
+        errorMessageLabel.setOpaque(false);
+
         JLabel loginLinkLabel = new JLabel("Đã có tài khoản? Đăng nhập");
         loginLinkLabel.setFont(new Font("Inter", Font.PLAIN, 14));
-        loginLinkLabel.setForeground(accentColor); 
+        loginLinkLabel.setForeground(accentColor);
         loginLinkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         loginLinkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         authBox.add(titleLabel);
-        authBox.add(Box.createVerticalStrut(30)); 
+        authBox.add(Box.createVerticalStrut(25));
         authBox.add(usernameLabel);
-        authBox.add(Box.createVerticalStrut(8));
+        authBox.add(Box.createVerticalStrut(6));
         authBox.add(usernameInput);
-        authBox.add(Box.createVerticalStrut(20)); 
+        authBox.add(Box.createVerticalStrut(15));
         authBox.add(emailLabel);
-        authBox.add(Box.createVerticalStrut(8));
+        authBox.add(Box.createVerticalStrut(6));
         authBox.add(emailInput);
-        authBox.add(Box.createVerticalStrut(20));
+        authBox.add(Box.createVerticalStrut(15));
         authBox.add(passwordLabel);
-        authBox.add(Box.createVerticalStrut(8));
+        authBox.add(Box.createVerticalStrut(6));
         authBox.add(passwordInput);
-        authBox.add(Box.createVerticalStrut(20));
+        authBox.add(Box.createVerticalStrut(15));
         authBox.add(confirmPasswordLabel);
-        authBox.add(Box.createVerticalStrut(8));
+        authBox.add(Box.createVerticalStrut(6));
         authBox.add(confirmPasswordInput);
         authBox.add(Box.createVerticalStrut(25));
         authBox.add(registerBtn);
@@ -147,15 +178,17 @@ public class RegisterFrame extends JFrame {
 
         add(authBox);
 
-        setupActions(errorBgColor);
+        setupActions(errorBgColor, loginLinkLabel);
     }
 
-    private void setupActions(final Color errBg) {
+    private void setupActions(final Color errBg, JLabel loginLinkLabel) {
         final JTextField uInput = this.usernameInput;
         final JTextField eInput = this.emailInput;
         final JPasswordField pInput = this.passwordInput;
         final JPasswordField cpInput = this.confirmPasswordInput;
         final JLabel errLabel = this.errorMessageLabel;
+
+        DatabaseManager dbManager = DatabaseManager.getInstance();
 
         registerBtn.addActionListener(new ActionListener() {
             @Override
@@ -167,21 +200,48 @@ public class RegisterFrame extends JFrame {
 
                 if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     errLabel.setOpaque(true);
-                    errLabel.setBackground(errBg); 
+                    errLabel.setBackground(errBg);
                     errLabel.setText(" Vui lòng điền đầy đủ tất cả thông tin! ");
+                } else if (!password.equals(confirmPassword)) {
+                    errLabel.setOpaque(true);
+                    errLabel.setBackground(errBg);
+                    errLabel.setText(" Mật khẩu xác nhận không trùng khớp! ");
                 } else {
-                    if (!password.equals(confirmPassword)) {
+                    try {
+                        boolean success = dbManager.insertUser(username, email, password);
+
+                        if (success) {
+                            errLabel.setOpaque(false);
+                            errLabel.setText("");
+                            JOptionPane.showMessageDialog(RegisterFrame.this, "Đăng ký tài khoản thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+                            RegisterFrame.this.dispose();
+                            if (loginFrameParent != null) {
+                                loginFrameParent.setVisible(true);
+                            }
+                        } else {
+                            errLabel.setOpaque(true);
+                            errLabel.setBackground(errBg);
+                            errLabel.setText(" Tên đăng nhập này đã tồn tại! ");
+                        }
+                    } catch (SQLException ex) {
                         errLabel.setOpaque(true);
                         errLabel.setBackground(errBg);
-                        errLabel.setText(" Mật khẩu xác nhận không trùng khớp! ");
-                    } else {
-                        errLabel.setOpaque(false);
-                        errLabel.setText(""); 
-                        JOptionPane.showMessageDialog(RegisterFrame.this, "Đăng ký tài khoản thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        errLabel.setText(" Lỗi Cơ sở dữ liệu: " + ex.getMessage() + " ");
                     }
                 }
                 errLabel.revalidate();
                 errLabel.repaint();
+            }
+        });
+
+        loginLinkLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                RegisterFrame.this.dispose();
+                if (loginFrameParent != null) {
+                    loginFrameParent.setVisible(true);
+                }
             }
         });
     }
@@ -195,4 +255,3 @@ public class RegisterFrame extends JFrame {
         });
     }
 }
-

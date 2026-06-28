@@ -1,72 +1,89 @@
 package com.mycompany;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
+import com.google.gson.Gson;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private PrintWriter out;
+    private BufferedReader in;
     private String username = "Anonymous";
     private String currentRoomId = null;
+    private final Gson gson = new Gson();
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
         try {
-            this.out = new ObjectOutputStream(socket.getOutputStream());
-            this.in = new ObjectInputStream(socket.getInputStream());
+            this.out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
         } catch (IOException e) {
-            System.err.println("Lỗi I/O luồng Client: " + e.getMessage());
+            System.err.println("Loi I/O luong Client: " + e.getMessage());
         }
     }
 
     @Override
     public void run() {
         try {
-            while (true) {
-                Packet packet = (Packet) in.readObject();
-                if (packet == null) break;
+            String message;
+            while ((message = in.readLine()) != null) {
+                Packet packet = gson.fromJson(message, Packet.class);
+                if (packet == null) continue;
+
+                if ("MOVE".equals(packet.getType())) {
+                    Room room = GameLoggic.getRoomManagerInstance().getRoom(packet.getRoomId());
+                    if (room != null && !room.getCurrentTurnPlayer().equals(packet.getSender())) {
+                        System.out.println("[Anti-Cheat] Chan nuoc di sai luot cua: " + packet.getSender());
+                        continue;
+                    }
+                }
 
                 switch (packet.getType()) {
-                    case Protocol.LOGIN:
-                        this.username = packet.getSender();
-                        this.currentRoomId = packet.getRoomId();
-                        // Tự động đưa người chơi vào phòng mặc định hệ thống vừa tạo
-                        Room defaultRoom = SocketServer.roomManager.getRoom(currentRoomId);
-                        if (defaultRoom != null) {
-                            defaultRoom.addPlayer(this);
+                    case "LOGIN":
+                        String loginUser = packet.getSender();
+                        String loginPassword = packet.getData();
+
+                        boolean isValid = DatabaseManager.getInstance().checkLogin(loginUser, loginPassword);
+
+                        if (isValid) {
+                            this.username = loginUser;
+                            this.currentRoomId = packet.getRoomId();
+                            System.out.println("User [" + username + "] dang nhap THANH CONG vao phong [" + currentRoomId + "].");
+
+                            sendPacket(new Packet("LOGIN_RESPONSE", "SERVER", currentRoomId, "SUCCESS"));
+                        } else {
+                            System.out.println("User [" + loginUser + "] dang nhap THAT BAI (Sai tai khoan/mat khau).");
+
+                            sendPacket(new Packet("LOGIN_RESPONSE", "SERVER", null, "FAILED_AUTH"));
                         }
-                        System.out.println("User [" + username + "] đã tham gia phòng [" + currentRoomId + "].");
-                        break;
-                        
-                    case Protocol.PING:
-                        sendPacket(new Packet(Protocol.PING, "SERVER", null, "PONG"));
                         break;
 
-                    case Protocol.CREATE_ROOM:
-                    case Protocol.JOIN_ROOM:
-                    case Protocol.LEAVE_ROOM:
-                        LobbyHandler.handleLobby(packet, this);
+                    case "PING":
+                        sendPacket(new Packet("PONG", "SERVER", packet.getRoomId(), ""));
                         break;
 
-                    case Protocol.CHAT:
-                        ChatHandler.handleChat(packet, this);
+                    case "MOVE":
+                        Room targetRoom = GameLoggic.getRoomManagerInstance().getRoom(packet.getRoomId());
+                        if (targetRoom != null && GameLoggic.checkMove(packet.getData(), targetRoom)) {
+                            targetRoom.sendToOpponent(packet, this.username);
+                            targetRoom.switchTurn();
+                        }
                         break;
 
-                    case Protocol.MOVE:
-                    case Protocol.PASS:
-                    case Protocol.RESIGN:
-                    case Protocol.RTC_OFFER:
-                    case Protocol.RTC_ANSWER:
-                    case Protocol.RTC_ICE:
-                        GameHandler.handleGameAction(packet, this);
+                    default:
+                        Room r = GameLoggic.getRoomManagerInstance().getRoom(packet.getRoomId());
+                        if (r != null) {
+                            r.sendToOpponent(packet, this.username);
+                        }
                         break;
                 }
             }
         } catch (Exception e) {
-            System.out.println("Kết nối của [" + username + "] bị đóng.");
+            System.out.println("Ket noi cua [" + username + "] bi dong.");
         } finally {
             close();
         }
@@ -75,19 +92,18 @@ public class ClientHandler implements Runnable {
     public void sendPacket(Packet packet) {
         try {
             synchronized (out) {
-                out.writeObject(packet);
-                out.flush();
+                String jsonStr = gson.toJson(packet);
+                out.println(jsonStr);
             }
-        } catch (IOException e) {
-            System.err.println("Lỗi gửi gói tin: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Loi gui goi tin: " + e.getMessage());
         }
     }
 
     private void close() {
         try {
-            SocketServer.onlineClients.remove(this);
             if (currentRoomId != null) {
-                SocketServer.roomManager.leaveRoom(currentRoomId, this);
+                GameLoggic.getRoomManagerInstance().leaveRoom(currentRoomId, this);
             }
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {

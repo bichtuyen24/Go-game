@@ -1,10 +1,12 @@
+package com.mycompany;
+
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 
 public class AuthHandler {
 
-    private final Database db = DatabaseManager.getInstance();
-    private static final int BCRYPT_ROUNDS = 16;
+    private final DatabaseManager db = DatabaseManager.getInstance();
+    private static final int BCRYPT_ROUNDS = 12;
     private static final int MIN_USER_LENGTH = 3;
     private static final int MIN_PASS_LENGTH = 8;
 
@@ -19,8 +21,11 @@ public class AuthHandler {
             this.message = message;
             this.userId = userId;
             this.username = username;
-
         }
+    }
+
+    private static Result fail(String message) {
+        return new Result(false, message, -1, null);
     }
 
     public Result handleRegister(String username, String email, String password){
@@ -60,7 +65,7 @@ public class AuthHandler {
     }
 
     public Result handleLogin(String username, String password){
-        if (Username == null || username.trim().isEmpty())
+        if (username == null || username.trim().isEmpty())
             return fail("Vui long nhap ten dang nhap!");
         if(password == null || password.isEmpty())
             return fail("Vui long nhap mat khau!");
@@ -70,7 +75,6 @@ public class AuthHandler {
         DatabaseManager.UserRecord user;
         try{
             user = db.findByUsername(username);
-
         } catch (SQLException e) {
             System.err.println("Loi database: " + e.getMessage());
             return fail("Loi server. Vui long thu lai!");
@@ -84,7 +88,6 @@ public class AuthHandler {
         boolean match;
         try {
             match = BCrypt.checkpw(password, user.password());
-
         }catch (Exception e) {
             System.err.println("Loi BCrypt: " + e.getMessage());
             return fail("Loi server. Vui long thu lai!");
@@ -98,10 +101,4 @@ public class AuthHandler {
             return fail("Ten dang nhap hoac mat khau khong dung!");
         }
     }
-
-    private Result fail(String message) {
-        return new Result(false, message, 0, "");
-    }
-
-
 }

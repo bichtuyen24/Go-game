@@ -1,17 +1,15 @@
 package board;
 
-import java.util.ArrayList;
-import java.util.List;
-import javafx.scene.paint.Color;
+import java.awt.Color;
 
 public class BoardState {
     private final int size = 19;
     private final Stone[][] grid = new Stone[size][size];
-    private Stone lastPlacedStone = null; 
+    private Stone lastPlacedStone = null;
 
     public boolean placeStone(int row, int col, Color color) {
         if (row < 0 || row >= size || col < 0 || col >= size) return false;
-        if (grid[row][col] != null) return false; // Ô đã có quân cờ
+        if (grid[row][col] != null) return false;
 
         Stone newStone = new Stone(row, col, color);
         grid[row][col] = newStone;
@@ -22,4 +20,9 @@ public class BoardState {
     public Stone[][] getGrid() { return grid; }
     public Stone getLastPlacedStone() { return lastPlacedStone; }
     public int getSize() { return size; }
+
+    public Color getStoneColor(int r, int c) {
+
+        return null;
+    }
 }

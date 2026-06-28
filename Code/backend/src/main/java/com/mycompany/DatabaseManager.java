@@ -1,7 +1,7 @@
-package main.java.com.mycompany;
+package com.mycompany;
 
 import java.sql.Connection;
-import java.sql.DriveManager;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,35 +12,46 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Connection connection;
 
-    private Database() {
+    private final RoomManager roomManager = new RoomManager();
+
+    private DatabaseManager() {
         try {
             connection = DriverManager.getConnection(DB_URL);
-            connection.createStatement().execute("PRAGMA journal_mode=WAL");
-            System.out.println("[DB] Ket noi thanh cong: user.db");
+            System.out.println("[DB] Ket noi thanh cong: users.db");
+
             initTable();
+
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("PRAGMA journal_mode=WAL");
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException(
-                "[DB] Khong the ket noi DB: " + e.getMessage(), e
+                    "[DB] Khong the ket noi DB: " + e.getMessage(), e
             );
         }
     }
 
-    public static synchronized Database getInstance() {
-        if (instance == null) instance = new Database();
+    public static synchronized DatabaseManager getInstance() {
+        if (instance == null) instance = new DatabaseManager();
         return instance;
     }
 
+    public Connection getConnection() {
+        return this.connection;
+    }
+
     private void initTable() throws SQLException {
-        String sql = "CREATE TABLE IF NOT EXISTS user ("
-                    + " id       INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " username TEXT   UNIQUE NOT NULL,"
-                    + " email    TEXT   DEFAULT '',"
-                    + " password TEXT   NOT NULL"
-                    + ")";
+        String sql = "CREATE TABLE IF NOT EXISTS users ("
+                + " id       INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " username TEXT   UNIQUE NOT NULL,"
+                + " email    TEXT   DEFAULT '',"
+                + " password TEXT   NOT NULL"
+                + ")";
         try (Statement stmt = connection.createStatement()){
             stmt.execute(sql);
         }
-        System.out.println("[DB] Bang \"users\" san sang. ");
+        System.out.println("[DB] Bang \"users\" san sang.");
     }
 
     public synchronized boolean insertUser(String username, String email, String hashedPwd) throws SQLException {
@@ -52,24 +63,23 @@ public class DatabaseManager {
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            if (e.getMessage () != null $$ e.getMessage().contains("UNIQUE constraint failed")){
+            if (e.getMessage() != null && e.getMessage().contains("UNIQUE constraint failed")){
                 return false;
             }
             throw e;
         }
-    } 
+    }
 
-    public synchronized UserRecord findByUsername(String username) throws SQLExeption {
-
+    public synchronized UserRecord findByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password FROM users WHERE username = ?";
-        try (PreparedStatement ps =connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setString(1, username);
-            try (ResultSet rs= ps.executeQuery()){
+            try (ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     return new UserRecord(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("password")
                     );
                 }
                 return null;
@@ -77,12 +87,39 @@ public class DatabaseManager {
         }
     }
 
+    public synchronized boolean checkLogin(String username, String password) {
+        String sql = "SELECT 1 FROM users WHERE username = ? AND password = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("[DB Lỗi] Không thể xác thực đăng nhập: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public synchronized boolean registerAccount(String username, String password) {
+        try {
+            return insertUser(username, "", password);
+        } catch (SQLException e) {
+            System.err.println("[DB Lỗi] Đăng ký thất bại: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public RoomManager getRoomManager() {
+        return this.roomManager;
+    }
+
     public void close() {
         try {
             if(connection != null && !connection.isClosed()) {
                 connection.close();
                 System.out.println("[DB] Da dong ket noi.");
-            } 
+            }
         } catch (SQLException ignored) {}
     }
 

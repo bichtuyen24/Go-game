@@ -2,10 +2,13 @@ package network;
 
 import java.io.*;
 import java.net.Socket;
+import javax.swing.SwingUtilities;
+import javax.swing.JLabel;
+import javax.swing.Timer;
 import board.BoardCanvas;
-import javafx.application.Platform;
 import com.mycompany.Packet;
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import ui.GameRoom;
 
 public class SocketClient {
 
@@ -13,123 +16,131 @@ public class SocketClient {
     private BufferedReader in;
     private PrintWriter out;
     private boolean isConnected = false;
+    private final Gson gson = new Gson();
 
-    
+    private long pingStartTime;
+    private JLabel pingValueLabel;
+    private String currentRoomId = "default_room";
+    private Timer pingTimer;
+
     public void connectAsync(BoardCanvas canvas) {
         new Thread(() -> {
             try {
                 System.out.println("[Client] Đang kết nối tới Server...");
-                socket = new Socket("localhost", 9999);
-                
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
+                socket = new Socket("localhost", 9000);
+
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
                 isConnected = true;
                 System.out.println("[Client] Kết nối Server thành công!");
 
-               
                 listenFromServer(canvas);
 
             } catch (Exception e) {
-                System.err.println("[Lỗi] Không thể kết nối Server (Có thể bạn chưa bật Server). Ứng dụng vẫn chạy ở chế độ Offline để test UI.");
+                System.err.println("[Lỗi] Không thể kết nối Server. Ứng dụng chạy ở chế độ Offline.");
             }
         }).start();
     }
 
-    
+    public Timer startNetworkPingTicker(JLabel pingLabel, String roomId) {
+        this.pingValueLabel = pingLabel;
+        this.currentRoomId = roomId;
+
+        if (pingTimer != null && pingTimer.isRunning()) {
+            pingTimer.stop();
+        }
+
+        pingTimer = new Timer(2000, e -> {
+            if (isConnected && out != null) {
+                pingStartTime = System.currentTimeMillis();
+                Packet p = new Packet("PING", "Player", currentRoomId, "");
+                out.println(gson.toJson(p));
+            }
+        });
+        pingTimer.start();
+        return pingTimer;
+    }
+
     private void listenFromServer(BoardCanvas canvas) {
         try {
             String message;
             while (isConnected && (message = in.readLine()) != null) {
                 final String msg = message;
-                
-                
-                Platform.runLater(() -> {
+
+                SwingUtilities.invokeLater(() -> {
                     processServerMessage(msg, canvas);
                 });
             }
         } catch (IOException e) {
             System.err.println("[Mạng] Mất kết nối với Server.");
             isConnected = false;
+            if (pingTimer != null) pingTimer.stop();
         }
     }
 
-    
     private void processServerMessage(String message, BoardCanvas canvas) {
         try {
-            if (message.startsWith("OPPONENT_MOVE:")) {
-                
-                String data = message.substring("OPPONENT_MOVE:".length());
-                String[] tokens = data.split(",");
-                int row = Integer.parseInt(tokens[0]);
-                int col = Integer.parseInt(tokens[1]);
-                canvas.handleServerMove(row, col, "WHITE"); 
-            } 
-            else if (message.startsWith("OPPONENT_PING:")) {
-                
-                String data = message.substring("OPPONENT_PING:".length());
-                String[] tokens = data.split(",");
-                int row = Integer.parseInt(tokens[0]);
-                int col = Integer.parseInt(tokens[1]);
-                canvas.triggerPingAt(row, col); 
-            }
-            else if (message.contains("|")) { 
-                // Giải mã chuỗi dạng "ACTION|{JSON}" nhận từ server thành đối tượng Packet
-                com.mycompany.Packet packet = com.mycompany.Packet.fromString(message);
-                if (packet != null) {
-                    String action = packet.getAction();
-                    com.google.gson.JsonObject payload = packet.getPayload();
+            Packet packet = gson.fromJson(message, Packet.class);
 
-                    if ("MOVE".equals(action)) {
-                        int row = payload.get("row").getAsInt();
-                        int col = payload.get("col").getAsInt();
-                        // Lấy màu từ server truyền về hoặc mặc định là WHITE nếu thiếu
-                        String colorStr = payload.has("color") ? payload.get("color").getAsString() : "WHITE";
-                        canvas.handleServerMove(row, col, colorStr); 
-                    } 
-                    else if ("PING".equals(action)) {
-                        int row = payload.get("row").getAsInt();
-                        int col = payload.get("col").getAsInt();
-                        canvas.triggerPingAt(row, col); 
+            if (packet != null) {
+                String type = packet.getType();
+                String data = packet.getData();
+                String sender = packet.getSender();
+
+                if ("PONG".equals(type)) {
+                    long currentPing = System.currentTimeMillis() - pingStartTime;
+                    if (pingValueLabel != null) {
+                        pingValueLabel.setText(currentPing + " ms");
                     }
+                }
+                else if ("RESIGN".equals(type) || "RESIGN".equals(sender) || "RESIGN".equals(data)) {
+                    java.awt.Window window = SwingUtilities.getWindowAncestor(canvas);
+                    if (window instanceof GameRoom) {
+                        GameRoom room = (GameRoom) window;
+                        room.handleOpponentResign();
+                    }
+                }
+                else if ("MOVE".equals(type) && data != null) {
+                    String[] tokens = data.split(",");
+                    int row = Integer.parseInt(tokens[0]);
+                    int col = Integer.parseInt(tokens[1]);
+
+                    String colorHint = sender.equalsIgnoreCase("Server") ? "WHITE" : "BLACK";
+                    canvas.handleServerMove(row, col, colorHint);
+                }
+                else if ("PING".equals(type) && data != null) {
+                    String[] tokens = data.split(",");
+                    int row = Integer.parseInt(tokens[0]);
+                    int col = Integer.parseInt(tokens[1]);
+                    canvas.triggerPingAt(row, col);
                 }
             }
         } catch (Exception e) {
-            System.err.println("[Lỗi] Gói tin từ Server không hợp lệ: " + message);
+            System.err.println("[Lỗi] Xử lý gói tin từ Server thất bại: " + e.getMessage());
         }
     }
 
     public void sendMove(int row, int col) {
+        sendPacketMove(row, col, currentRoomId, "Player");
+    }
+
+    public void sendPacketMove(int row, int col, String roomId, String sender) {
         if (isConnected && out != null) {
-            out.println("MOVE:" + row + "," + col);
+            String coordData = row + "," + col;
+            Packet p = new Packet("MOVE", sender, roomId, coordData);
+
+            String jsonStr = gson.toJson(p);
+            out.println(jsonStr);
         }
     }
 
-    public void sendPing(int row, int col) {
+    public void sendPacketPing(int row, int col, String roomId, String sender) {
         if (isConnected && out != null) {
-            out.println("PING:" + row + "," + col);
-        }
-    }
-    public void sendPacketMove(int row, int col, String roomId) {
-        if (isConnected && out != null) {
-            com.google.gson.JsonObject data = new com.google.gson.JsonObject();
-            data.addProperty("row", row);
-            data.addProperty("col", col);
-            data.addProperty("roomId", roomId);
-            
-            // Sử dụng hàm Packet.of gốc của nhóm bạn
-            com.mycompany.Packet p = com.mycompany.Packet.of("MOVE", data);
-            out.println(p.toString()); // Gửi chuỗi "MOVE|{...}" lên Server của bạn
-        }
-    }
+            String coordData = row + "," + col;
+            Packet p = new Packet("PING", sender, roomId, coordData);
 
-    public void sendPacketPing(int row, int col) {
-        if (isConnected && out != null) {
-            com.google.gson.JsonObject data = new com.google.gson.JsonObject();
-            data.addProperty("row", row);
-            data.addProperty("col", col);
-            
-            com.mycompany.Packet p = com.mycompany.Packet.of("PING", data);
-            out.println(p.toString());
+            String jsonStr = gson.toJson(p);
+            out.println(jsonStr);
         }
     }
 }

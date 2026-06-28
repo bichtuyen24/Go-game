@@ -1,0 +1,24 @@
+# Maven
+target/
+
+# Build
+out/
+build/
+
+# SQLite
+*.db
+*.sqbpro
+
+# Java
+*.class
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend generated
+Code/Frontend/src/META-INF/

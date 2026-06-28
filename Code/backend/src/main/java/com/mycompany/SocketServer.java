@@ -13,7 +13,6 @@ public class SocketServer {
     public static void main(String[] args) {
         System.out.println("=== GO GAME SERVER RUNNING ON PORT " + PORT + " ===");
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            // Khởi tạo phòng mặc định "01" khớp với phòng chờ ngầm của FE hiện tại
             roomManager.createRoom("01", null);
 
             while (true) {

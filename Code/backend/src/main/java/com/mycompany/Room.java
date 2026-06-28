@@ -19,7 +19,6 @@ public class Room {
     }
 
     public synchronized boolean addPlayer(ClientHandler player) {
-        // Nếu player đã tồn tại trong danh sách thì bỏ qua
         for (ClientHandler p : players) {
             if (p.getUsername().equals(player.getUsername())) return true;
         }
