@@ -1,8 +1,12 @@
-package main.java.com.mycompany;
+package com.mycompany;
+
+import java.io.*;
+import java.net.Socket;
+import java.io.IOException;
 
 public class TcpClient {
     private static final String SERVER_IP = "127.0.0.1";
-    private static final int    SERVER_PORT = "9000";
+    private static final int    SERVER_PORT = Integer.parseInt("9000");
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
@@ -14,11 +18,11 @@ public class TcpClient {
         System.out.println("[CLIENT] Da ket noi: " + SERVER_IP + ":" + SERVER_PORT);
     }
 
-    public Packet send(Packet request) throws IOException {
+    public Packets send(Packets request) throws IOException {
         out.println(request.encode());
-        String raw = in.readline();
-        if (raw == null) throw new IOExeption("Server dong!");
-        return Packet.decode(raw);
+        String raw = in.readLine();
+        if (raw == null) throw new IOException("Server dong!");
+        return Packets.decode(raw);
     }
 
     public void disconnect() {
@@ -28,5 +32,5 @@ public class TcpClient {
         System.out.println("[CLIENT] Ngat ket noi!");
     }
 
-    
+
 }

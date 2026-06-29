@@ -1,7 +1,7 @@
-package main.java.com.mycompany;
+package com.mycompany;
 
 import java.sql.Connection;
-import java.sql.DriveManager;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Connection connection;
 
-    private Database() {
+    private DatabaseManager() {
         try {
             connection = DriverManager.getConnection(DB_URL);
             connection.createStatement().execute("PRAGMA journal_mode=WAL");
@@ -20,23 +20,23 @@ public class DatabaseManager {
             initTable();
         } catch (SQLException e) {
             throw new RuntimeException(
-                "[DB] Khong the ket noi DB: " + e.getMessage(), e
+                    "[DB] Khong the ket noi DB: " + e.getMessage(), e
             );
         }
     }
 
-    public static synchronized Database getInstance() {
-        if (instance == null) instance = new Database();
+    public static synchronized DatabaseManager getInstance() {
+        if (instance == null) instance = new DatabaseManager();
         return instance;
     }
 
     private void initTable() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS user ("
-                    + " id       INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " username TEXT   UNIQUE NOT NULL,"
-                    + " email    TEXT   DEFAULT '',"
-                    + " password TEXT   NOT NULL"
-                    + ")";
+                + " id       INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " username TEXT   UNIQUE NOT NULL,"
+                + " email    TEXT   DEFAULT '',"
+                + " password TEXT   NOT NULL"
+                + ")";
         try (Statement stmt = connection.createStatement()){
             stmt.execute(sql);
         }
@@ -52,14 +52,14 @@ public class DatabaseManager {
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            if (e.getMessage () != null $$ e.getMessage().contains("UNIQUE constraint failed")){
+            if (e.getMessage () != null && e.getMessage().contains("UNIQUE constraint failed")){
                 return false;
             }
             throw e;
         }
-    } 
+    }
 
-    public synchronized UserRecord findByUsername(String username) throws SQLExeption {
+    public synchronized UserRecord findByUsername(String username) throws SQLException {
 
         String sql = "SELECT id, username, password FROM users WHERE username = ?";
         try (PreparedStatement ps =connection.prepareStatement(sql)){
@@ -67,9 +67,9 @@ public class DatabaseManager {
             try (ResultSet rs= ps.executeQuery()){
                 if(rs.next()){
                     return new UserRecord(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("password")
                     );
                 }
                 return null;
@@ -82,7 +82,7 @@ public class DatabaseManager {
             if(connection != null && !connection.isClosed()) {
                 connection.close();
                 System.out.println("[DB] Da dong ket noi.");
-            } 
+            }
         } catch (SQLException ignored) {}
     }
 

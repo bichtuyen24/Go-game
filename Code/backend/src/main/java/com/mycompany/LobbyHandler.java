@@ -1,9 +1,9 @@
 package com.mycompany;
 
 public class LobbyHandler {
-    public static void handleLobby(Packet packet, ClientHandler sender) {
+    public static void handleLobby(Packets packet, ClientHandler sender) {
         String roomId = packet.getRoomId();
-        
+
         if (packet.getType().equals(Protocol.CREATE_ROOM)) {
             Room newRoom = SocketServer.roomManager.createRoom(roomId, sender);
             if (newRoom != null) {
@@ -12,7 +12,7 @@ public class LobbyHandler {
             } else {
                 sender.sendPacket(new Packet(Protocol.ROOM_ERROR, "SERVER", roomId, "Phòng đã tồn tại!"));
             }
-        } 
+        }
         else if (packet.getType().equals(Protocol.JOIN_ROOM)) {
             Room room = SocketServer.roomManager.joinRoom(roomId, sender);
             if (room != null) {
@@ -22,7 +22,7 @@ public class LobbyHandler {
             } else {
                 sender.sendPacket(new Packet(Protocol.ROOM_ERROR, "SERVER", roomId, "Phòng đầy hoặc không hợp lệ!"));
             }
-        } 
+        }
         else if (packet.getType().equals(Protocol.LEAVE_ROOM)) {
             SocketServer.roomManager.leaveRoom(roomId, sender);
             sender.setCurrentRoomId(null);

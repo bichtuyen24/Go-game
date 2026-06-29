@@ -19,7 +19,7 @@ public class SocketServer {
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Kết nối mới đến từ: " + socket.getRemoteSocketAddress());
-                
+
                 ClientHandler handler = new ClientHandler(socket);
                 onlineClients.add(handler);
                 new Thread(handler).start();

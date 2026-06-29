@@ -1,7 +1,7 @@
 package ui;
 
-import org.example.board.BoardCanvas;
-import org.example.network.SocketClient;
+import board.BoardCanvas;
+import network.SocketClient;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.Font;

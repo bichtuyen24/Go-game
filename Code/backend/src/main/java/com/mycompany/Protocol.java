@@ -1,6 +1,6 @@
 package com.mycompany;
 
-public class Protocol {
+ppublic class Protocol {
     public static final String LOGIN = "LOGIN";
     public static final String PING = "PING";
 

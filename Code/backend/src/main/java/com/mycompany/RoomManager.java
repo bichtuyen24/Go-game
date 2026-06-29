@@ -1,5 +1,4 @@
 package com.mycompany;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomManager {

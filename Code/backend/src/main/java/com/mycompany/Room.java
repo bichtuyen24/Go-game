@@ -1,13 +1,12 @@
 package com.mycompany;
 
 import java.util.concurrent.CopyOnWriteArrayList;
-
 public class Room {
     private String roomId;
     private CopyOnWriteArrayList<ClientHandler> players = new CopyOnWriteArrayList<>();
     private String currentTurnPlayer = "";
-    private String blackPlayer = ""; 
-    private String whitePlayer = ""; 
+    private String blackPlayer = "";
+    private String whitePlayer = "";
 
     public Room(String roomId, ClientHandler host) {
         this.roomId = roomId;
@@ -24,7 +23,7 @@ public class Room {
             if (p.getUsername().equals(player.getUsername())) return true;
         }
         if (players.size() >= 2) return false;
-        
+
         players.add(player);
         if (blackPlayer.isEmpty()) {
             blackPlayer = player.getUsername();
