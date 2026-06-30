@@ -1,18 +1,14 @@
-package ui;
+package src.ui;
 
-import board.BoardCanvas;
-import network.SocketClient;
+import src.board.BoardCanvas;
+import src.network.SocketClient;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 public class GameScene   {
     private final String currentUsername;
@@ -157,20 +153,6 @@ public class GameScene   {
         return root;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // 1. Tạo cửa sổ JFrame
-            JFrame frame = new JFrame("Game Vây Kỳ");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(960, 640);
-
-            // 2. Tạo GameScene và lấy Panel giao diện ráp vào cửa sổ
-            GameScene scene = new GameScene("Player_01");
-            frame.add(scene.createMainPanel());
-
-            // 3. Hiển thị ra giữa màn hình
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        });
-    }
 }
+
+

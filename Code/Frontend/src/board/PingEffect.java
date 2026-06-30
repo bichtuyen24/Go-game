@@ -1,4 +1,4 @@
-package board;
+package src.board;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -46,3 +46,4 @@ public class PingEffect {
 
     public boolean isActive() { return active; }
 }
+

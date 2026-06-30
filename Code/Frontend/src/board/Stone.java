@@ -1,5 +1,4 @@
 package src.board;
-
 import java.awt.Color;
 
 
@@ -21,3 +20,4 @@ public class Stone {
     public double getOpacity() { return opacity; }
     public void setOpacity(double opacity) { this.opacity = opacity; }
 }
+
