@@ -124,6 +124,17 @@ public class RegisterFrame extends JFrame {
         loginLinkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         loginLinkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        loginLinkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                // 1. Khởi tạo và hiển thị màn hình Login
+                new Login().setVisible(true);
+
+                // 2. Tắt màn hình Đăng Ký hiện tại đi để giải phóng bộ nhớ
+                RegisterFrame.this.dispose();
+            }
+        });
+
         authBox.add(titleLabel);
         authBox.add(Box.createVerticalStrut(30));
         authBox.add(usernameLabel);
@@ -228,5 +239,7 @@ public class RegisterFrame extends JFrame {
         });
     }
 }
+
+
 
 
